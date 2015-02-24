@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2010 The myBatis Team Licensed under the Apache License, Version
+	2.0 (the "License"); you may not use this file except in compliance with
+	the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+	Unless required by applicable law or agreed to in writing, software distributed
+	under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+	OR CONDITIONS OF ANY KIND, either express or implied. See the License for
+	the specific language governing permissions and limitations under the License. -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                           http://www.springframework.org/schema/tx
+                           http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context.xsd">
+    
+    <bean id="executorServiceRef" class="java.util.concurrent.Executors" factory-method="newFixedThreadPool"> 
+	    <constructor-arg value="5"></constructor-arg> 
+	</bean>
+	
+	<bean id="forkJoinTaskExecutorRef" class="org.eason.workflowengine.domain.common.bl.impl.taskexecutors.ForkJoinTaskExecutor"> 
+	    <property name="executorService" ref="executorServiceRef"/>
+	    <property name="workFlowRestClient" ref="localFakeWorkFlowRestClientRef"/>
+	</bean>
+	
+	<bean id="serviceTaskExecutorRef" class="org.eason.workflowengine.domain.common.bl.impl.taskexecutors.ServiceTaskExecutor"> 
+	    <property name="executorService" ref="executorServiceRef"/>
+	    <property name="workFlowRestClient" ref="localFakeWorkFlowRestClientRef"/>
+	</bean>
+	
+	<bean id="commonTaskDispatcherRef" class="org.eason.workflowengine.domain.common.bl.impl.taskdispatchers.CommonTaskDispatcher"> 
+	    <property name="taskExecutorsMap">
+	        <map>
+              <entry key="FORK_JOIN" value-ref="forkJoinTaskExecutorRef"/>
+              <entry key="SERVICE" value-ref="serviceTaskExecutorRef"/>
+            </map>
+	    </property> 
+	    <property name="workFlowDao" ref="workFlowMemDaoRef"/>
+	</bean>
+	
+	<bean id="workFlowExecutorRef" class="org.eason.workflowengine.domain.common.bl.impl.WorkFlowExecutor"> 
+	    <property name="executorService" ref="executorServiceRef"/>
+	    <property name="taskDispatcher" ref="commonTaskDispatcherRef"/>
+	    <property name="distributeLock" ref="distributeLockRef" />
+	</bean>
+	
+	<bean id="workFlowMemDaoRef" class="org.eason.workflowengine.domain.common.dao.impl.mem.WorkFlowMemDao"> 
+	    <property name="workFlowTable">
+	        <map>
+              <entry key="1" value-ref="testUpgradeFarmWorkFlow"/>
+            </map>
+	    </property>
+	</bean>
+	
+	<bean id="taskEventMemDaoRef" class="org.eason.workflowengine.domain.common.dao.impl.mem.TaskEventMemDao"> 
+	    <property name="taskEventTable">
+	        <map>
+            </map>
+	    </property>
+	</bean>
+	
+	<bean id="workFlowServiceRef" class="org.eason.workflowengine.application.WorkFlowService"> 
+	    <property name="workFlowDao" ref="workFlowMemDaoRef"/>
+	    <property name="taskEventMemDao" ref="taskEventMemDaoRef"/>
+	    <property name="workFlowExecutor" ref="workFlowExecutorRef"/>
+	</bean>
+	
+	<bean id="taskEventServiceRef" class="org.eason.workflowengine.application.TaskEventService"> 
+	    <property name="workFlowService" ref="workFlowServiceRef"/>
+	</bean>
+	
+	<bean id="workFlowResourceRef" class="org.eason.workflowengine.ui.resteasy.WorkFlowResource"> 
+	    <property name="workFlowService" ref="workFlowServiceRef"/>
+	    <property name="taskEventService" ref="taskEventServiceRef"/>
+	</bean>
+	
+	<bean id="localFakeWorkFlowRestClientRef" class="org.eason.workflowengine.infrastructure.integration.impl.LocalFakeWorkFlowRestClient"> 
+	    <property name="workFlowResource" ref="workFlowResourceRef"/>
+	</bean>
+	
+	<bean id="testUpgradeFarmWorkFlow" class="org.eason.workflowengine.domain.common.model.WorkFlow"> 
+	    <property name="id" value="1"/>
+	    <property name="name" value="upgradeFarm"/>
+	    <property name="data" value="farmid=1024,scalr=test.cloudfarms.net"/>
+	    <property name="resultData" value=""/>
+	    <property name="tasks">
+	        <list>
+	            <ref bean="fork1TaskRef" />
+	            <ref bean="upgradeVM1TaskRef" />
+	            <ref bean="upgradeVM2TaskRef" />
+	            <ref bean="join1TaskRef" />
+	            <ref bean="upgradeVM3TaskRef" />
+	        </list>
+	    </property>
+	    <property name="createTime" value="0"/>
+	    <property name="scheduledStartTime" value="0"/>
+	    <property name="dispatchedTime" value="0"/>
+	    <property name="startTime" value="0"/>
+	    <property name="doneTime" value="0"/>
+	    <property name="timeoutTime" value="600000"/>
+	</bean>
+	
+	<bean id="fork1TaskRef" class="org.eason.workflowengine.domain.common.model.CommonForkJoinTask"> 
+	    <property name="id" value="2"/>
+	    <property name="name" value="fork1Task"/>
+	    <property name="data" value="farmid=1024,scalr=test.cloudfarms.net"/>
+	    <property name="joinedServiceTasks">
+	        <list></list>
+	    </property>
+	    <property name="workFlowId" value="1"/>
+	    <property name="taskType" value="FORK_JOIN"/>
+	    <property name="status" value="Initiated"/>
+	    <property name="createTime" value="0"/>
+	    <property name="dispatchTime" value="0"/>
+	    <property name="startTime" value="0"/>
+	    <property name="doneTime" value="0"/>
+	    <property name="timeoutTime" value="600000"/>
+	</bean>
+	
+	<bean id="upgradeVM1TaskRef" class="org.eason.workflowengine.domain.common.model.CommonServiceTask"> 
+	    <property name="id" value="3"/>
+	    <property name="name" value="upgradeVM1Task"/>
+	    <property name="data" value="farmid=1024,scalr=test.cloudfarms.net,role=web,ip=10.194.132.248"/>
+	    <property name="joinedTask" ref="fork1TaskRef" />
+	    <property name="joinInterval" value="0" />
+	    <property name="workFlowId" value="1"/>
+	    <property name="taskType" value="SERVICE"/>
+	    <property name="status" value="Initiated"/>
+	    <property name="createTime" value="0"/>
+	    <property name="dispatchTime" value="0"/>
+	    <property name="startTime" value="0"/>
+	    <property name="doneTime" value="0"/>
+	    <property name="timeoutTime" value="10000"/>
+	</bean>	
+	
+	<bean id="upgradeVM2TaskRef" class="org.eason.workflowengine.domain.common.model.CommonServiceTask"> 
+	    <property name="id" value="5"/>
+	    <property name="name" value="upgradeVM2Task"/>
+	    <property name="data" value="farmid=1024,scalr=test.cloudfarms.net,role=web,ip=10.194.132.249"/>
+	    <property name="joinedTask" ref="fork1TaskRef" />
+	    <property name="joinInterval" value="0" />
+	    <property name="workFlowId" value="1"/>
+	    <property name="taskType" value="SERVICE"/>
+	    <property name="status" value="Initiated"/>
+	    <property name="createTime" value="0"/>
+	    <property name="dispatchTime" value="0"/>
+	    <property name="startTime" value="0"/>
+	    <property name="doneTime" value="0"/>
+	    <property name="timeoutTime" value="30000"/>
+	</bean>
+	
+	<bean id="join1TaskRef" class="org.eason.workflowengine.domain.common.model.CommonForkJoinTask"> 
+	    <property name="id" value="6"/>
+	    <property name="name" value="join1Task"/>
+	    <property name="data" value="farmid=1024,scalr=test.cloudfarms.net"/>
+	    <property name="joinedServiceTasks">
+	        <list>
+	            <ref bean="upgradeVM1TaskRef" />
+	            <ref bean="upgradeVM2TaskRef" />
+	        </list>
+	    </property>
+	    <property name="workFlowId" value="1"/>
+	    <property name="taskType" value="FORK_JOIN"/>
+	    <property name="status" value="Initiated"/>
+	    <property name="createTime" value="0"/>
+	    <property name="dispatchTime" value="0"/>
+	    <property name="startTime" value="0"/>
+	    <property name="doneTime" value="0"/>
+	    <property name="timeoutTime" value="2000"/>
+	</bean>
+	
+	<bean id="upgradeVM3TaskRef" class="org.eason.workflowengine.domain.common.model.CommonServiceTask"> 
+	    <property name="id" value="7"/>
+	    <property name="name" value="upgradeVM3Task"/>
+	    <property name="data" value="farmid=1024,scalr=test.cloudfarms.net,role=web,ip=10.194.132.250"/>
+	    <property name="joinedTask" ref="join1TaskRef" />
+	    <property name="joinInterval" value="0" />
+	    <property name="workFlowId" value="1"/>
+	    <property name="taskType" value="SERVICE"/>
+	    <property name="status" value="Initiated"/>
+	    <property name="createTime" value="0"/>
+	    <property name="dispatchTime" value="0"/>
+	    <property name="startTime" value="0"/>
+	    <property name="doneTime" value="0"/>
+	    <property name="timeoutTime" value="30000"/>
+	</bean>
+	
+	<bean id="memcachedClientRef" class="net.spy.memcached.spring.MemcachedClientFactoryBean">
+        <property name="servers">
+                    <value>127.0.0.1:11211</value>
+            </property>
+        <property name="protocol" value="BINARY"/>
+        <property name="transcoder">
+          <bean class="net.spy.memcached.transcoders.SerializingTranscoder">
+            <property name="compressionThreshold" value="1024"/>
+          </bean>
+        </property>
+        <property name="opTimeout" value="1000"/>
+        <property name="timeoutExceptionThreshold" value="1998"/>
+        <property name="hashAlg" value="KETAMA_HASH"/>
+        <property name="locatorType" value="CONSISTENT"/>
+        <property name="failureMode" value="Redistribute"/>
+        <property name="useNagleAlgorithm" value="false"/>
+     </bean>
+
+     <bean id="distributeLockRef"
+            class="org.eason.infrastructure.common.lock.DistributeLock">
+            <property name="memcachedClient" ref="memcachedClientRef" />
+    </bean>
+</beans>
