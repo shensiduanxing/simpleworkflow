@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN" "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
+<generatorConfiguration>
+	<classPathEntry
+		location="~/.m2/repository/mysql/mysql-connector-java/5.0.4/mysql-connector-java-5.0.4.jar" />
+	<context id="buildmetadata">
+		<jdbcConnection driverClass="com.mysql.jdbc.Driver"
+			connectionURL="jdbc:mysql://localhost:3306/simpleworkflow"
+			userId="workflow" password="wf@2015" />
+		
+		<javaModelGenerator targetPackage="org.eason.workflowengine.domain.common.model"
+			targetProject="simpleworkflow" />
+		<sqlMapGenerator targetPackage="org.eason.workflowengine.domain.common.dao.impl.mysql"
+			targetProject="simpleworkflow" />
+		<javaClientGenerator targetPackage="org.eason.workflowengine.domain.common.dao.impl.mysql"
+			targetProject="simpleworkflow" type="XMLMAPPER" />
+		
+		<table schema="simpleworkflow" tableName="workflow">
+			<generatedKey column="id" sqlStatement="MySql" identity="true" />
+		</table>
+		<table schema="simpleworkflow" tableName="task">
+			<generatedKey column="id" sqlStatement="MySql" identity="true" />
+		</table>
+		<table schema="simpleworkflow" tableName="sequence_flow">
+			<generatedKey column="id" sqlStatement="MySql" identity="true" />
+		</table>
+		<table schema="simpleworkflow" tableName="task_event">
+			<generatedKey column="id" sqlStatement="MySql" identity="true" />
+		</table>
+	</context>
+</generatorConfiguration>

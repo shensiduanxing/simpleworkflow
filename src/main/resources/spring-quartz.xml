@@ -1,0 +1,35 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd
+        ">
+        
+    <bean id="scheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="triggers">
+            <list>
+                <ref bean="executeWorkflowTrigger"/>
+            </list>
+        </property>
+    </bean>
+    
+    <bean id="executeWorkflowTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+        <property name="jobDetail" ref="executeWorkflowJobRef"/>
+        <property name="repeatInterval" value="15000"/>
+    </bean>
+    
+    <bean id="executeWorkflowJobRef" class="org.springframework.scheduling.quartz.JobDetailBean">
+        <property name="jobClass" value="org.eason.scheduler.ui.quartz.ExecuteWorkflowsJob"/>
+        <property name="jobDataAsMap">
+            <map>
+                <entry key="workflowService">
+                    <ref bean="workflowServiceRef"/>
+                </entry>
+            </map>
+        </property>
+    </bean>  
+</beans>

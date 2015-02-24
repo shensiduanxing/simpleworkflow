@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+         xsi:schemaLocation="
+         http://www.springframework.org/schema/rabbit http://www.springframework.org/schema/rabbit/spring-rabbit-1.0.xsd
+         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+         ">
+
+    <bean id="devopsPlatformWorkerConnectionFactory" class="org.springframework.amqp.rabbit.connection.CachingConnectionFactory">
+	    <constructor-arg value="${amqp.host}"/>
+	    <property name="username" value="${amqp.username}"/>
+	    <property name="password" value="${amqp.password}"/>
+	    <property name="virtualHost" value="${amqp.virtualHost}"/>
+	    <property name="channelCacheSize" value="25"/>
+	</bean>
+
+    <rabbit:template id="devopsPlatformWorkerAmqpTemplate" connection-factory="devopsPlatformWorkerConnectionFactory"/>
+    <rabbit:admin connection-factory="devopsPlatformWorkerConnectionFactory"/>
+    <rabbit:queue name="${amqp.queue.devopsplatform.worker.taskqueue}"/>
+    
+	<rabbit:listener-container connection-factory="devopsPlatformWorkerConnectionFactory">
+	    <rabbit:listener queues="${amqp.queue.devopsplatform.worker.taskqueue}" ref="devopsPlatformWorkerRef" method="handle" />
+	</rabbit:listener-container>
+	
+	<bean id="devopsPlatformWorkerRef" class="org.eason.testapp.devopsplatform.DevopsPlatformWorker">
+    </bean>
+    
+    
+</beans>

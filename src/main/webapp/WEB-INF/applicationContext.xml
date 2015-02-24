@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:sec="http://www.springframework.org/schema/security"
+  xmlns:oauth="http://spring-security-oauth.codehaus.org/3.0"
+  xsi:schemaLocation="
+              http://www.springframework.org/schema/beans 
+              http://www.springframework.org/schema/beans/spring-beans.xsd
+              http://www.springframework.org/schema/security 
+              http://www.springframework.org/schema/security/spring-security.xsd
+              http://spring-security-oauth.codehaus.org/3.0 
+              http://spring-security-oauth.codehaus.org/schema/spring-security-oauth-3.0.xsd
+              ">
+
+  <sec:http auto-config='true' access-denied-page="/login.jsp">
+    <!--  <sec:intercept-url pattern="/ws/builds/**" access="ROLE_CONSUMER" /> -->
+    <sec:intercept-url pattern="/ws/contacts/**" access="ROLE_USER" />
+    <sec:intercept-url pattern="/oauth/**" access="ROLE_USER" />
+    <sec:intercept-url pattern="/request_token_authorized.jsp" access="ROLE_USER" />
+    <sec:intercept-url pattern="/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+
+    <sec:form-login authentication-failure-url="/login.jsp" default-target-url="/index.jsp" login-page="/login.jsp" login-processing-url="/login.do"/>
+    <sec:logout logout-success-url="/index.jsp" logout-url="/logout.do"/>
+  </sec:http>
+
+  <sec:authentication-manager alias="authenticationManager"
+		xmlns="http://www.springframework.org/schema/security">
+    <sec:authentication-provider>
+      <user-service>
+        <user name="eason" password="eason2014" authorities="ROLE_USER" />
+      </user-service>
+    </sec:authentication-provider>
+  </sec:authentication-manager>
+
+ <oauth:provider consumer-details-service-ref="consumerDetailsService"
+                  token-services-ref="tokenServices"
+                  request-token-url="/oauth/request_token"
+                  authenticate-token-url="/oauth/authorize"
+                  access-granted-url="/request_token_authorized.jsp"
+                  access-token-url="/oauth/access_token"
+                  require10a="false"/>
+                  
+  <oauth:consumer-details-service id="consumerDetailsService">
+    <oauth:consumer name="eason" 
+                    key="eason" 
+                    secret="eason2014" 
+                    resourceName="Workflow"
+                    resourceDescription="WorkflowService"
+                    requiredToObtainAuthenticatedToken="false"
+                    authorities="ROLE_CONSUMER"/>
+  </oauth:consumer-details-service>
+
+  <oauth:token-services id="tokenServices"/>
+
+</beans>

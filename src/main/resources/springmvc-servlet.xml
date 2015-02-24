@@ -1,0 +1,53 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.1.xsd
+        ">
+    <context:annotation-config/>
+    
+    <task:annotation-driven/>
+    <context:component-scan base-package="com.eason"/>
+    
+    <!-- Properties Override -->
+    <bean id="properties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE"/>
+        <property name="ignoreResourceNotFound" value="true"/>
+        <property name="locations">
+            <list>
+                <!-- standard conf -->
+                <value>classpath*:/application.properties</value>
+                <!-- online host conf -->
+                <value>file:/var/eason/simpleworkflow/application.properties</value>
+            </list>
+        </property>
+    </bean>
+    <!--
+       Configures the RESTEasy integration by importing the provided
+       springmvc-resteasy.xml file. This file is provided by JBoss
+       within the resteasy-spring.jar.
+    -->
+    <import resource="classpath:springmvc-resteasy.xml"/>
+    <import resource="classpath:spring-ibatis-context.xml"/>
+    <import resource="classpath:workflow-context.xml"/>
+    <import resource="classpath:spring-quartz.xml"/>
+    <import resource="classpath:spring-rabbitmq.xml"/>
+    <import resource="classpath:devops-platform-worker.xml"/>
+    
+    <mvc:resources mapping="static/**" location="/static/"/>
+    <mvc:view-controller path="/" view-name="index"/>
+    <mvc:annotation-driven/>
+
+    <bean id="viewResolver"
+          class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="viewClass"
+                  value="org.springframework.web.servlet.view.JstlView"/>
+        <property name="prefix" value="/views/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+</beans>
