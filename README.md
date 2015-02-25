@@ -1,4 +1,4 @@
-simpleworkflow
+SimpleWorkflow
 ==============
 
 Simple work flow is simple workflow framework, used for building simple full automation works orchestration by sync works, execute works in parallel.
@@ -138,13 +138,21 @@ Get Task Events(Workflow id, task id) (Rest)  Done
 Get Workflow Task Events(Workflow id) (Rest)  Done
 
 1. Implement WorkFlowRepository to create Workflow entity
+
 Workflow entity is able to get Tasks and SequenceFlows
+
 2. Implement from to tasks' interval
+
 3. Implement OAuth
-4. System will keep app’s latest 5000 workflows
+
+4. System will keep app√ïs latest 5000 workflows
+
 5. System support 10K concurrent workflows execution
+
 6. System can work normally when there are large 
+
 7. Implement app can only get itself's workflows and tasks
+
 8. Implement multiple tasks groups' dependency
 
 
