@@ -67,7 +67,7 @@ public class WorkflowRestServiceUnitTest {
 	    dispatcher.getRegistry().addSingletonResource(this.workflowResource);
 	    dispatcher.getRegistry().addSingletonResource(this.taskResource);
 	    dispatcher.getRegistry().addSingletonResource(this.taskEventResource);
-	    this.testWorkFlow = this.createWorkFlow();
+	    this.testWorkFlow = this.createWorkflow();
 	}
 
 	@After
@@ -253,12 +253,39 @@ public class WorkflowRestServiceUnitTest {
 		voTask3.setType("Service");
 		voTask3.setTimeout(60);
 		
+		VoTask voTask4 = new VoTask();
+		voTask4.setName("forkJoin1");
+		voTask4.setData("");
+		voTask4.setType("ForkJoin");
+		voTask4.setTimeout(60);
+		
+		VoTask voTask5 = new VoTask();
+		voTask5.setName("upgrade-10.194.132.251");
+		voTask5.setData("{'event':'Upgrade','scope':'10.194.132.249','components':'webconsole'}");
+		voTask5.setType("Service");
+		voTask5.setTimeout(60);
+		
+		VoTask voTask6 = new VoTask();
+		voTask6.setName("upgrade-10.194.132.252");
+		voTask6.setData("{'event':'Upgrade','scope':'10.194.132.249','components':'webconsole'}");
+		voTask6.setType("Service");
+		voTask6.setTimeout(60);
+		
 		voTasks.add(voTask1);
 		voTasks.add(voTask2);
 		voTasks.add(voTask3);
+		voTasks.add(voTask4);
+		voTasks.add(voTask5);
+		voTasks.add(voTask6);
 		
 		List<VoSequenceFlow> voSequenceFlows = new ArrayList<VoSequenceFlow>();
-		
+		//            upgrade-10.194.132.247
+		//                |          |
+		//upgrade-10.194.132.248   upgrade-10.194.132.249
+		//                    |     |
+		//                   forkjoin1
+		//                    |     |
+		//upgrade-10.194.132.251   upgrade-10.194.132.252
 		VoSequenceFlow voSequenceFlow = new VoSequenceFlow();
 		String fromTask = "upgrade-10.194.132.247";
 		String toTask = "upgrade-10.194.132.248";
@@ -268,15 +295,51 @@ public class WorkflowRestServiceUnitTest {
 		voSequenceFlow.setIntervalTime(intervalTime);
 		
 		VoSequenceFlow voSequenceFlow2 = new VoSequenceFlow();
-		String fromTask2 = "upgrade-10.194.132.248";
+		String fromTask2 = "upgrade-10.194.132.247";
 		String toTask2 = "upgrade-10.194.132.249";
 		long intervalTime2 = 60 ;
 		voSequenceFlow2.setFromTask(fromTask2);
 		voSequenceFlow2.setToTask(toTask2);
 		voSequenceFlow2.setIntervalTime(intervalTime2);
 		
+		VoSequenceFlow voSequenceFlow3 = new VoSequenceFlow();
+		String fromTask3 = "upgrade-10.194.132.248";
+		String toTask3 = "forkJoin1";
+		long intervalTime3 = 0 ;
+		voSequenceFlow3.setFromTask(fromTask3);
+		voSequenceFlow3.setToTask(toTask3);
+		voSequenceFlow3.setIntervalTime(intervalTime3);
+		
+		VoSequenceFlow voSequenceFlow4 = new VoSequenceFlow();
+		String fromTask4 = "upgrade-10.194.132.249";
+		String toTask4 = "forkJoin1";
+		long intervalTime4 = 0 ;
+		voSequenceFlow4.setFromTask(fromTask4);
+		voSequenceFlow4.setToTask(toTask4);
+		voSequenceFlow4.setIntervalTime(intervalTime4);
+		
+		VoSequenceFlow voSequenceFlow5 = new VoSequenceFlow();
+		String fromTask5 = "forkJoin1";
+		String toTask5 = "upgrade-10.194.132.251";
+		long intervalTime5 = 0 ;
+		voSequenceFlow5.setFromTask(fromTask5);
+		voSequenceFlow5.setToTask(toTask5);
+		voSequenceFlow5.setIntervalTime(intervalTime5);
+		
+		VoSequenceFlow voSequenceFlow6 = new VoSequenceFlow();
+		String fromTask6 = "forkJoin1";
+		String toTask6 = "upgrade-10.194.132.252";
+		long intervalTime6 = 0 ;
+		voSequenceFlow6.setFromTask(fromTask6);
+		voSequenceFlow6.setToTask(toTask6);
+		voSequenceFlow6.setIntervalTime(intervalTime6);
+		
 		voSequenceFlows.add(voSequenceFlow);
 		voSequenceFlows.add(voSequenceFlow2);
+		voSequenceFlows.add(voSequenceFlow3);
+		voSequenceFlows.add(voSequenceFlow4);
+		voSequenceFlows.add(voSequenceFlow5);
+		voSequenceFlows.add(voSequenceFlow6);
 		
 		voWorkflow.setName("upgrade-env-dev1");
 		voWorkflow.setScheduledStartTime(System.currentTimeMillis());
@@ -291,7 +354,7 @@ public class WorkflowRestServiceUnitTest {
 		return createWorkFlowRequest;
 	}
 	
-	private Workflow createWorkFlow() throws Exception {
+	private Workflow createWorkflow() throws Exception {
 		MockHttpRequest request = MockHttpRequest.post("/ws/workflow");
 	    request.accept(MediaType.APPLICATION_JSON);
 	    request.contentType(MediaType.APPLICATION_JSON);

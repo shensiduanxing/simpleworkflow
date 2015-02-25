@@ -21,6 +21,7 @@ public class ExecuteWorkflowsJob extends QuartzJobBean {
 		
 		_logger.info("Execute ExecuteWorkflowsJob at " + simpleDateFormat.format(new Date()));
 		workflowService.startRunnableWorkflows();
+		workflowService.stopFinishedWorkflows();
 		workflowService.executeWorkFlows();
 	}
 	

@@ -48,6 +48,16 @@ public class TaskService {
 		return tasks;
 	}
 	
+	public List<Task> getWorkflowUnfinishedTasks(long workflow){
+		List<String> statuses = new ArrayList<String>();
+		statuses.add(TaskStatus.CREATED);
+		statuses.add(TaskStatus.QUEUED);
+		statuses.add(TaskStatus.DISPATCHED);
+		statuses.add(TaskStatus.RUNNING); 
+		List<Task> tasks = this.taskDao.getWorkflowTasks(workflow, statuses);
+		return tasks;
+	}
+	
 	public Task getTask(long workflowId, long taskId){
 		Task task = this.taskDao.getTask(workflowId, taskId);
 		return task;

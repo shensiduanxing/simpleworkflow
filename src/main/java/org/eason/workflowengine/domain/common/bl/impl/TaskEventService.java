@@ -4,8 +4,10 @@ import java.util.List;
 
 import org.eason.workflowengine.domain.common.bl.ITaskEventService;
 import org.eason.workflowengine.domain.common.dao.ITaskEventDao;
+import org.eason.workflowengine.domain.common.model.Task;
 import org.eason.workflowengine.domain.common.model.TaskEvent;
 import org.eason.workflowengine.domain.common.model.TaskEventName;
+import org.eason.workflowengine.domain.common.model.TaskStatus;
 
 /**
  * TaskEventListener will also trigger WorkFlowService to execute 
@@ -71,22 +73,30 @@ public class TaskEventService implements ITaskEventService {
 			//trigger workflow execution
 			//1. update task status to done
             taskService.updateTaskStatusDone(workflowId, taskId);
-            //To Do: set workflow as Done if all tasks done
-            
-			//2. trigger workflow execution
-			this.workflowService.executeWorkFlow(workflowId);
+            if(this.workflowService.isWorkflowCompleted(workflowId)){
+            	this.workflowService.stopWorkflow(workflowId);
+            }else{
+				//2. trigger workflow execution
+				this.workflowService.executeWorkFlow(workflowId);
+            }
 		}else if (eventName.equals(TaskEventName.FAILED)){
 			//If event is failed, set task status as Failed, save Task Failed event data as Task's Result
 			taskService.updateTaskStatusFailed(workflowId, taskId);
-			//To Do: set workflow as Done if all tasks done
-			
-			this.workflowService.executeWorkFlow(workflowId);
+			if(this.workflowService.isWorkflowCompleted(workflowId)){
+            	this.workflowService.stopWorkflow(workflowId);
+            }else{
+			    this.workflowService.executeWorkFlow(workflowId);
+            }
 		}else if (eventName.equals(TaskEventName.TIMEOUT)){
 			taskService.updateTaskStatusTimeout(workflowId, taskId);
-			//To Do: set workflow as Done if all tasks done
-			
-			this.workflowService.executeWorkFlow(workflowId);
+			if(this.workflowService.isWorkflowCompleted(workflowId)){
+            	this.workflowService.stopWorkflow(workflowId);
+            }else{
+			    this.workflowService.executeWorkFlow(workflowId);
+            }
 		}
 	}
+	
+	
 	
 }

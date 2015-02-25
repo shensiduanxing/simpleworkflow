@@ -27,6 +27,7 @@
 	<bean id="workflowServiceRef" class="org.eason.workflowengine.domain.common.bl.impl.WorkflowService"> 
 	    <property name="workFlowDao" ref="workflowMysqlDao"/>
 	    <property name="workFlowExecutor" ref="workFlowExecutorRef"/>
+	    <property name="taskService" ref="taskServiceRef"/>
 	</bean>
 	
 	<bean id="taskServiceRef" class="org.eason.workflowengine.domain.common.bl.impl.TaskService"> 
@@ -52,12 +53,7 @@
 	    <property name="amqpTemplate" ref="amqpTemplate" />
 	    <property name="taskQueueName" value="${amqp.queue.workflow.taskqueue}" />
 	</bean>
-	
-	<bean id="serviceTaskExecutorRef" class="org.eason.testapp.taskexecutor.ServiceTaskExecutor"> 
-	    <property name="executorService" ref="executorServiceRef"/>
-	    <property name="workFlowRestClient" ref="localFakeWorkFlowRestClientRef"/>
-	</bean>
-	
+		
 	<bean id="executorServiceRef" class="java.util.concurrent.Executors" factory-method="newFixedThreadPool"> 
 	    <constructor-arg value="5"></constructor-arg> 
 	</bean>

@@ -6,6 +6,8 @@ import org.apache.log4j.Logger;
 import org.eason.workflowengine.domain.common.bl.IWorkFlowExecutor;
 import org.eason.workflowengine.domain.common.dao.ITaskEventDao;
 import org.eason.workflowengine.domain.common.dao.IWorkflowDao;
+import org.eason.workflowengine.domain.common.model.Task;
+import org.eason.workflowengine.domain.common.model.TaskStatus;
 import org.eason.workflowengine.domain.common.model.Workflow;
 import org.eason.workflowengine.domain.common.model.WorkflowStatus;
 
@@ -23,6 +25,7 @@ public class WorkflowService {
 	 */
 	private IWorkflowDao workFlowDao;
 	private IWorkFlowExecutor workFlowExecutor;
+	private TaskService taskService;
 	
 	public void setWorkFlowDao(IWorkflowDao workFlowDao){
 		this.workFlowDao = workFlowDao;
@@ -30,6 +33,10 @@ public class WorkflowService {
 	
 	public void setWorkFlowExecutor(IWorkFlowExecutor workFlowExecutor){
 		this.workFlowExecutor = workFlowExecutor;
+	}
+	
+	public void setTaskService(TaskService taskService){
+		this.taskService = taskService;
 	}
 	
 	public Workflow createWorkflow(Workflow workflow){
@@ -61,6 +68,17 @@ public class WorkflowService {
 		this.workFlowDao.updateRunnableWorkFlowsAsRunning();
 	}
 	
+	public void stopFinishedWorkflows(){
+		List<Workflow> workFlows = this.workFlowDao.getUnFinishedWorkFlows();
+		if(workFlows!=null && workFlows.size()>0){
+			for(Workflow workFlow : workFlows){
+				if(isWorkflowCompleted(workFlow.getId())){
+					this.stopWorkflow(workFlow.getId());
+				}
+			}
+		}
+	}
+	
 	public void executeWorkFlow(long workFlowId){
 		Workflow workFlow = workFlowDao.getWorkFlow(workFlowId);
 		if(workFlow!=null){
@@ -80,6 +98,34 @@ public class WorkflowService {
 	
 	public void resumeWorkflow(long workflowId){
 		workFlowDao.updateWorkflowStatus(workflowId, WorkflowStatus.CANCELED);
+	}
+	
+	public void stopWorkflow(long workflowId){
+		List<Task> tasks = taskService.getWorkflowTasks(workflowId);
+		String status = TaskStatus.DONE;
+		for(Task task : tasks){
+			String tmpStatus = task.getStatus();
+			if(tmpStatus.equals(TaskStatus.FAILED)){
+				status = TaskStatus.FAILED;
+				break;
+			}else if (tmpStatus.equals(TaskStatus.TIMEOUT)){
+				if(status.equals(TaskStatus.DONE) || status.equals(TaskStatus.TIMEOUT)){
+				    status = TaskStatus.TIMEOUT;
+				}else if (status.equals(TaskStatus.FAILED)){
+					status = TaskStatus.FAILED;
+				}
+			}
+		}
+		workFlowDao.updateWorkflowStatus(workflowId, status);
+	}
+	
+	public boolean isWorkflowCompleted(long workflowId){
+		boolean isCompleted = true;
+		List<Task> tasks = taskService.getWorkflowUnfinishedTasks(workflowId);
+		if(tasks.size()>0){
+			isCompleted = false;
+		}
+		return isCompleted;
 	}
 	
 

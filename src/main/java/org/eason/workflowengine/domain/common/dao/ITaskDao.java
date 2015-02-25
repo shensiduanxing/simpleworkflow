@@ -10,6 +10,7 @@ public interface ITaskDao {
 	public TaskWithBLOBs createTask(TaskWithBLOBs task);
 	public Task getTask(long workFlowId, long taskId);
 	public List<Task> getWorkflowTasks(long workflowId);
+	public List<Task> getWorkflowTasks(long workflowId, List<String> statuses);
 	public void updateTaskStatus(long taskId, long workFlowId, String status);
 	public void setTaskDispatched(long taskId, long workFlowId);
 	public void setTaskRunning(long taskId, long workFlowId);

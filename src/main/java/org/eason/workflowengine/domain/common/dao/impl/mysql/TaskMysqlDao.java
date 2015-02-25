@@ -29,6 +29,15 @@ public class TaskMysqlDao implements ITaskDao {
 		List<Task> tasks = taskMapper.selectByExampleWithBLOBs(example);
 		return tasks;
 	}
+	
+	public List<Task> getWorkflowTasks(long workflowId, List<String> statuses) {
+		TaskExample example = new TaskExample();
+		TaskExample.Criteria criteria = example.createCriteria();
+		criteria.andWorkflowIdEqualTo(workflowId);
+		criteria.andStatusIn(statuses);
+		List<Task> tasks = taskMapper.selectByExampleWithBLOBs(example);
+		return tasks;
+	}
 
 	public Task getTask(long workflowId, long taskId) {
 		TaskExample example = new TaskExample();
