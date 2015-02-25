@@ -3,19 +3,13 @@ SimpleWorkflow
 
 Simple work flow is simple workflow framework, used for building simple full automation works orchestration by sync works, execute works in parallel.
 
-There are lots of workflow open source, but lots of them are designed
-for enterprise's workflow that with human involved, such as activiti etc.
-they are a little complicated for cases that are simple such as just need to 
-make several works execute in parallel, after these works done, then execute
-another patch works or work.
+There are lots of workflow open source, but lots of them are designed for enterprise's workflow that with human involved, such as activiti etc. they are a little complicated for cases that are simple such as just need to make several works execute in parallel, after these works done, then execute another patch works or work.
 
 These scenarios for example:
 
 ##1. Build Load Test System
 
-Can generate load in batch and by interval, such as
-first make 5 load agent to generate load together, after 5 mins, start another 5 
-load agents to generate load, etc.
+Can generate load in batch and by interval, such as first make 5 load agent to generate load together, after 5 mins, start another 5 load agents to generate load, etc.
 
 ##2. Build a continuous deployment system
 
@@ -86,56 +80,83 @@ to make graceful upgrade, minimize the service unavailable time during upgrade, 
 Plan:
 
 1. Implement create workflow, tasks, sequenceflows
+
 2. Implement execute workflow schedulely
+
 1) get Runnable tasks
 2) send runnable tasks to taskqueue
-workflow_taskqueue
+
 3. Implement dispatch app tasks to app task queue
-app_taskqueue
-4. Implement test use app worker to get task from app task queue and 
-update task's status/events  (put this test use app worker to simpleworkflow project)
+
+4. Implement test use app worker to get task from app task queue and update task's status/events  (put this test use app worker to simpleworkflow project)
 
 
 Register App
 
 Workflow Part:
 Create WorkFlow       Done
+
 Get WorkFlow          Done
+
 Create SequenceFlows  Done
+
 Delete Workflow       Done
+
 Execute WorkFlow      Done
+
    schedule execute   Done
+   
    get runnable tasks Done
+   
    send runnable tasks to taskqueue  Done
+   
    Dispatch tasks to app taskqueue   Done
+   
    Implement from to tasks' interval Pending
+   
 Suspend WorkFlow      Done
+
 Resume WorkFlow       Done
+
 Cancel WorkFlow       Done
+
 Save WorkFlow Event   Pending P2
+
 Get App Workflows     
 
 Task Part:
 Create Tasks(Rest)          Done
+
 Execute WorkFlow      Done
    get runnable tasks Done
    send runnable tasks to taskqueue  Done
    Dispatch tasks to app taskqueue   Done
    Implement from to tasks' interval Pending
+   
 Save Task Result      Done
+
    Task result will be saved in taskEvent done, failed event data
+   
    save by TaskEventService call TaskService to save the result, TaskEventService can choose to save the data or not   
+
 Set Task Timeout(Rest)
-   2 ways, one way by Workflow engine, one way by app worker report timeout task event     
+   2 ways, one way by Workflow engine, one way by app worker report timeout task event 
+   
 Get WorkFlow Tasks(Rest)       Done
+
 Get Tasks Result(Rest) (Workflow id, task name)  Done
+
 Set workflow Done when all tasks done  On-going
 
 
 Task Events Part:
+
 Save Task Event | Update Task Status (Rest)   Done
+
 Get Task Events(Workflow id, task id) (Rest)  Done
+
 Get Workflow Task Events(Workflow id) (Rest)  Done
+
 
 1. Implement WorkFlowRepository to create Workflow entity
 
