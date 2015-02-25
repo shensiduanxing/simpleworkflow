@@ -3,10 +3,8 @@ package org.eason.workflowengine.domain.common.bl.impl;
 import java.util.concurrent.ExecutorService;
 
 import org.apache.log4j.Logger;
-import org.eason.dispatcher.ITaskDispatcher;
 import org.eason.infrastructure.common.lock.DistributeLock;
 import org.eason.workflowengine.domain.common.bl.IWorkFlowExecutor;
-import org.eason.workflowengine.domain.common.model.IWorkflow;
 import org.eason.workflowengine.domain.common.model.Workflow;
 import org.springframework.amqp.core.AmqpTemplate;
 

@@ -41,4 +41,20 @@ public class TaskEventMemDao implements ITaskEventDao {
 		return null;
 	}
 
+	public TaskEvent getById(long taskEventId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void delete(long taskEventId) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public List<TaskEvent> getTaskEvents(long workflowId, long taskId,
+			List<String> names) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
